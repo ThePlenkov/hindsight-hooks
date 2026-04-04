@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Nx cache
+.nx/
+
+# Lockfile (contains corporate registry URLs — regenerate with `bun install`)
+bun.lock
+package-lock.json
+
+# Local config (user-specific, may contain API tokens)
+.devin/hindsight-settings.json
+.devin/hooks.v1.json.bak
+.env*
+.npmrc
+.hindsight-state/
+
+# Editor
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db

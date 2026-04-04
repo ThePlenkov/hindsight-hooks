@@ -1,0 +1,42 @@
+{
+  "SessionStart": [
+    {
+      "matcher": "",
+      "hooks": [{
+        "type": "command",
+        "command": "hindsight-devin session-start",
+        "timeout": 5
+      }]
+    }
+  ],
+  "UserPromptSubmit": [
+    {
+      "matcher": "",
+      "hooks": [{
+        "type": "command",
+        "command": "hindsight-devin recall",
+        "timeout": 60
+      }]
+    }
+  ],
+  "Stop": [
+    {
+      "matcher": "",
+      "hooks": [{
+        "type": "command",
+        "command": "hindsight-devin retain",
+        "timeout": 15
+      }]
+    }
+  ],
+  "SessionEnd": [
+    {
+      "matcher": "",
+      "hooks": [{
+        "type": "command",
+        "command": "hindsight-devin session-end",
+        "timeout": 10
+      }]
+    }
+  ]
+}
