@@ -1,129 +1,119 @@
 # hindsight-hooks
 
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-ThePlenkov%2Fhindsight--hooks-blue.svg?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTQgNGgxNnYxNkg0eiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNOCA4aDh2OEg4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==)](https://deepwiki.com/ThePlenkov/hindsight-hooks)
+[![CI](https://github.com/ThePlenkov/hindsight-hooks/actions/workflows/ci.yml/badge.svg)](https://github.com/ThePlenkov/hindsight-hooks/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-Monorepo for AI agent memory hooks powered by [Hindsight](https://github.com/vectorize-io/hindsight).
 
 Give your AI coding agents persistent memory across sessions. Agents automatically recall relevant context before each prompt and retain valuable learnings after each conversation.
 
-Uses the official [`@vectorize-io/hindsight-client`](https://hindsight.vectorize.io/sdks/nodejs) SDK, Node.js native TypeScript (no build step for plugins), and [nx](https://nx.dev) for task orchestration.
+Powered by [Hindsight](https://hindsight.vectorize.io/).
 
-## Packages
+## How It Works
 
-| Package                                          | Description                                                       | Status |
-| ------------------------------------------------ | ----------------------------------------------------------------- | ------ |
-| [`hindsight-plugin`](packages/hindsight-plugin/) | Config, content processing, hook pipelines, daemon lifecycle, CLI | Ready  |
-| [`hindsight-claude`](packages/hindsight-claude/) | Claude Code plugin: hook wrappers + JSONL transcript reader       | Ready  |
-| [`hindsight-devin`](packages/hindsight-devin/)   | Devin CLI plugin: hook wrappers + install script                  | Ready  |
+```
+User Prompt
+    │
+    ▼
+┌─────────────────┐     ┌──────────────┐     ┌────────────────┐
+│ UserPromptSubmit │────▶│ Hindsight    │────▶│ Inject memories│
+│ (recall)         │     │ API /recall  │     │ into context   │
+└─────────────────┘     └──────────────┘     └────────────────┘
+    │
+    ▼
+  Agent works...
+    │
+    ▼
+┌─────────────────┐     ┌──────────────┐     ┌────────────────┐
+│ Stop             │────▶│ Score        │────▶│ Hindsight      │
+│ (retain)         │     │ transcript   │     │ API /retain    │
+└─────────────────┘     └──────────────┘     └────────────────┘
+```
+
+Before each prompt, the agent recalls relevant memories from past sessions. After each conversation, valuable content (debugging lessons, architecture decisions, user preferences) is scored and retained — only if it passes a quality threshold.
+
+## Supported Agents
+
+| Package | Agent | Install method |
+|---------|-------|----------------|
+| [`hindsight-claude`](packages/hindsight-claude/) | Claude Code | Copy hooks config |
+| [`hindsight-devin`](packages/hindsight-devin/) | Devin | Run install script |
+
+The shared core (`hindsight-plugin`) handles config, scoring, recall/retain pipelines, and daemon lifecycle.
 
 ## Prerequisites
 
-- **Node.js >= 22** (for native TypeScript execution)
-- **Bun** (recommended) or npm for package management
-- **Hindsight API** running locally or accessible remotely (default: `http://localhost:8888`)
+- **Node.js >= 22** (native TypeScript support required)
+- **Hindsight API** — running locally or accessible remotely
 
-## Quick Start
+Get Hindsight at [hindsight.vectorize.io](https://hindsight.vectorize.io/).
+
+## Install
 
 ```bash
+git clone https://github.com/ThePlenkov/hindsight-hooks.git
+cd hindsight-hooks
 bun install
-bun run build    # builds hindsight-plugin
-bun run check    # type-check all packages
+bun run build
 ```
 
-## Using with Claude Code
+## Setup: Claude Code
 
-1. Edit `packages/hindsight-claude/settings.json` -- set `hindsightApiUrl` and `bankId`:
-
-   ```json
-   {
-     "hindsightApiUrl": "http://localhost:8888",
-     "bankId": "claude_code"
-   }
-   ```
-
-2. Install the plugin into your project by copying the hooks config:
-
-   ```bash
-   mkdir -p /path/to/project/.claude/hooks
-   cp packages/hindsight-claude/hooks/hooks.json /path/to/project/.claude/hooks/hooks.json
-   ```
-
-3. Claude Code will now:
-   - **Recall** relevant memories before each prompt (injected via `UserPromptSubmit` hook)
-   - **Retain** valuable conversation content after each response (via `Stop` hook)
-   - **Reflect** on sessions at end (via `SessionEnd` hook)
-
-### User Config Override
-
-Create `~/.hindsight/claude-code.json` to override settings per-machine without editing the repo:
+1. Configure `packages/hindsight-claude/settings.json`:
 
 ```json
 {
   "hindsightApiUrl": "http://localhost:8888",
-  "debug": true
+  "bankId": "claude_code"
 }
 ```
 
-Config cascade: defaults < `settings.json` < `~/.hindsight/<agentName>.json` < environment variables.
+2. Copy the hooks into your project:
 
-## Using with Devin
+```bash
+cp -r packages/hindsight-claude/hooks /path/to/project/.claude/hooks
+```
 
-1. Edit `packages/hindsight-devin/settings.json` -- set `hindsightApiUrl`:
+3. Done. Claude Code will now recall and retain memories automatically via lifecycle hooks.
 
-   ```json
-   {
-     "hindsightApiUrl": "http://localhost:8888",
-     "bankId": "devin"
-   }
-   ```
+## Setup: Devin
 
-2. Link the CLI globally (development):
+1. Configure `packages/hindsight-devin/settings.json`:
 
-   ```bash
-   cd packages/hindsight-devin && bun link
-   ```
+```json
+{
+  "hindsightApiUrl": "http://localhost:8888",
+  "bankId": "devin"
+}
+```
 
-   Or install globally (production):
+2. Run the installer:
 
-   ```bash
-   bun i -g hindsight-devin
-   ```
+```bash
+cd packages/hindsight-devin
+./install.sh /path/to/project
+```
 
-3. Run the installer to set up hooks in your project:
-
-   ```bash
-   cd packages/hindsight-devin
-   ./install.sh /path/to/project
-   ```
-
-   This copies hook definitions, skills, and agent configs into `/path/to/project/.devin/`.
-
-4. Or for development within this monorepo:
-   ```bash
-   ./install.sh --self
-   ```
+This copies hook definitions, skills, and agent configs into the project's `.devin/` directory.
 
 ## Configuration
 
-All settings are configured through `settings.json` in each plugin. Key options:
+All settings live in each plugin's `settings.json`. Override per-machine with `~/.hindsight/<agentName>.json`, or per-env with `HINDSIGHT_*` variables.
 
-| Setting            | Default                     | Description                                              |
-| ------------------ | --------------------------- | -------------------------------------------------------- |
-| `hindsightApiUrl`  | `""`                        | Hindsight API URL (falls back to daemon auto-start)      |
-| `bankId`           | `"claude_code"` / `"devin"` | Memory bank identifier                                   |
-| `autoRecall`       | `true`                      | Inject memories before each prompt                       |
-| `autoRetain`       | `true`                      | Store transcripts after each conversation                |
-| `recallBudget`     | `"mid"`                     | Recall search depth: `"low"`, `"mid"`, `"high"`          |
-| `recallMaxTokens`  | `1024`                      | Max tokens for recalled memories                         |
-| `scoringEnabled`   | `true`                      | Score transcripts for memory-worthiness before retaining |
-| `scoringThreshold` | `3`                         | Minimum score (0-10) to retain a transcript              |
-| `retainMode`       | `"full-session"`            | `"full-session"` or `"chunked"` (retain every N turns)   |
-| `debug`            | `false`                     | Log debug output to stderr                               |
+**Cascade:** defaults → `settings.json` → `~/.hindsight/<agent>.json` → env vars
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `hindsightApiUrl` | `""` | Hindsight API URL (falls back to daemon auto-start) |
+| `bankId` | `"claude_code"` / `"devin"` | Memory bank identifier |
+| `autoRecall` | `true` | Inject memories before each prompt |
+| `autoRetain` | `true` | Store transcripts after each conversation |
+| `recallBudget` | `"mid"` | Recall depth: `"low"`, `"mid"`, `"high"` |
+| `recallMaxTokens` | `1024` | Max tokens for recalled memories |
+| `scoringEnabled` | `true` | Score transcripts before retaining |
+| `scoringThreshold` | `3` | Minimum score (0–10) to retain |
+| `retainMode` | `"full-session"` | `"full-session"` or `"chunked"` |
+| `debug` | `false` | Log debug output to stderr |
 
 ### Environment Variables
-
-Override any setting with `HINDSIGHT_*` environment variables:
 
 ```bash
 HINDSIGHT_API_URL=http://localhost:8888
@@ -132,80 +122,28 @@ HINDSIGHT_AUTO_RECALL=true
 HINDSIGHT_DEBUG=true
 ```
 
-## How It Works
+## Adding a New Agent
 
-```
-User Prompt
-    |
-    v
-+-------------------+     +--------------+     +----------------+
-| UserPromptSubmit  |---->| Hindsight    |---->| Inject memories|
-| (recall)          |     | API /recall  |     | into context   |
-+-------------------+     +--------------+     +----------------+
-    |
-    v
-  Agent works...
-    |
-    v
-+-------------------+     +--------------+     +----------------+
-| Stop              |---->| Score        |---->| Hindsight      |
-| (retain)          |     | transcript   |     | API /retain    |
-+-------------------+     +--------------+     +----------------+
-```
+1. Create `packages/hindsight-<name>/` with a `package.json` (private, type: module)
+2. Add `hindsight-plugin` and `@vectorize-io/hindsight-client` as dependencies
+3. Create thin hook wrappers in `src/hooks/` — import `readStdin`, `loadConfig`, and `perform*` from `hindsight-plugin`
+4. Create a `settings.json` with agent-specific defaults
+5. Wire hooks into the agent's hook config format
 
-**Scoring** filters out trivial conversations. The scorer checks for signals like root cause analysis, design decisions, debugging lessons, user preferences, and architectural choices. Only transcripts above the threshold are retained.
-
-**Anti-feedback loop**: `<hindsight_memories>` tags are stripped before retention to prevent memories from compounding on themselves.
-
-## Architecture
-
-```
-hindsight-hooks/
-+-- .agents/                       # Cross-agent skills & agents
-|   +-- skills/hindsight/          # Hindsight memory skill
-|   +-- skills/openspec/           # OpenSpec skill
-|   +-- agents/memory-operator/    # Memory ops subagent
-+-- openspec/                      # OpenSpec specs & changes
-+-- packages/
-|   +-- hindsight-plugin/          # Core + hook pipelines (builds to dist/)
-|   |   +-- src/
-|   |       +-- config.ts          # 34-option config cascade
-|   |       +-- content.ts         # Transcript processing + scoring
-|   |       +-- bank.ts            # Dynamic bank IDs + mission
-|   |       +-- state.ts           # File-based persistence
-|   |       +-- daemon.ts          # hindsight-embed lifecycle
-|   |       +-- hooks.ts           # readStdin, performRecall/Retain/Session*
-|   |       +-- cli.ts             # Generic `hindsight` CLI entry point
-|   |       +-- index.ts           # Barrel export
-|   +-- hindsight-claude/          # Claude Code hooks (native .ts)
-|   |   +-- src/hooks/             # recall, retain, session-start, session-end
-|   |   +-- hooks/hooks.json       # Claude Code hook definitions
-|   |   +-- settings.json
-|   +-- hindsight-devin/           # Devin CLI hooks (native .ts)
-|       +-- src/
-|       |   +-- hooks/             # recall, retain, session-start, session-end
-|       |   +-- cli.ts             # `hindsight-devin` CLI entry point
-|       +-- hooks.v1.json          # Devin hook definitions
-|       +-- install.sh             # Installer script
-|       +-- settings.json
-+-- nx.json                        # Task graph: build -> check -> test
-+-- tsconfig.base.json             # Shared TS config
-+-- package.json                   # Workspaces root
-```
+See existing plugins for reference — each hook file is ~15 lines.
 
 ## Development
 
 ```bash
-# Build
-bunx nx build hindsight-plugin
+bun run build       # build hindsight-plugin
+bun run check       # typecheck all packages
+bun run lint        # biome lint + format check
+bun run lint:fix    # auto-fix lint + format issues
+```
 
-# Type-check a specific package
-bunx nx check hindsight-claude
+E2E tests (requires running Hindsight API):
 
-# Run all checks
-bunx nx run-many -t check
-
-# Test recall/retain end-to-end (needs running Hindsight API)
+```bash
 cd packages/hindsight-devin && npm run test:recall
 cd packages/hindsight-devin && npm run test:retain
 ```
