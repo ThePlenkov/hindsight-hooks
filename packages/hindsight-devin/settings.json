@@ -1,0 +1,21 @@
+{
+	"hindsightApiUrl": "",
+	"hindsightApiToken": null,
+	"apiPort": 9077,
+
+	"bankId": "devin",
+	"bankMission": "You are a Devin AI assistant with persistent memory. Focus on technical discussions, decisions, debugging patterns, and context relevant to the user's projects.",
+	"retainMission": "Extract technical decisions, architectural choices, user preferences, debugging lessons, project conventions, and people/tool relationships.",
+	"agentName": "devin",
+
+	"autoRecall": true,
+	"recallBudget": "mid",
+	"recallMaxTokens": 1024,
+
+	"autoRetain": true,
+	"retainMode": "full-session",
+	"scoringEnabled": true,
+	"scoringThreshold": 3,
+
+	"debug": false
+}

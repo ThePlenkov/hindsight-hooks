@@ -1,0 +1,30 @@
+{
+	"name": "hindsight-plugin",
+	"version": "0.1.0",
+	"description": "Hindsight agent plugin — config, content processing, hook pipelines, CLI",
+	"type": "module",
+	"bin": {
+		"hindsight": "./dist/cli.mjs"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsdown"
+	},
+	"dependencies": {
+		"@vectorize-io/hindsight-client": "^0.4.21"
+	},
+	"license": "MIT",
+	"exports": {
+		".": "./dist/index.mjs",
+		"./bank": "./dist/bank.mjs",
+		"./cli": "./dist/cli.mjs",
+		"./config": "./dist/config.mjs",
+		"./content": "./dist/content.mjs",
+		"./daemon": "./dist/daemon.mjs",
+		"./hooks": "./dist/hooks.mjs",
+		"./state": "./dist/state.mjs",
+		"./package.json": "./package.json"
+	}
+}

@@ -1,8 +1,13 @@
 {
   "$schema": "https://nx.dev/reference/nx-schema",
+  "plugins": [
+    "./tools/nx-defaults.ts"
+  ],
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": true,
       "inputs": [
         "{projectRoot}/src/**/*.ts",
@@ -10,10 +15,14 @@
         "{projectRoot}/tsconfig.json",
         "{projectRoot}/package.json"
       ],
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
     },
     "check": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": true,
       "inputs": [
         "{projectRoot}/src/**/*.ts",
@@ -22,9 +31,12 @@
       ]
     },
     "test": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": true
     }
   },
-  "defaultBase": "main"
+  "defaultBase": "main",
+  "analytics": true
 }

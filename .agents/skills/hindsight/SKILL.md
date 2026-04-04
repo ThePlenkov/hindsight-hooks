@@ -19,24 +19,24 @@ This project has Hindsight memory hooks installed. They provide **automatic pers
 
 Four hooks fire automatically during the session lifecycle:
 
-| Event | Hook | What It Does |
-|-------|------|-------------|
-| `SessionStart` | `session-start` | Initializes the Hindsight client and sets the bank mission |
-| `UserPromptSubmit` | `recall` | Searches memory for context relevant to the user's prompt, injects matches as `<hindsight_memories>` |
-| `Stop` | `retain` | Scores the conversation for memory-worthiness, retains high-value exchanges |
-| `SessionEnd` | `session-end` | Cleans up daemon (if started by the plugin) |
+| Event              | Hook            | What It Does                                                                                         |
+| ------------------ | --------------- | ---------------------------------------------------------------------------------------------------- |
+| `SessionStart`     | `session-start` | Initializes the Hindsight client and sets the bank mission                                           |
+| `UserPromptSubmit` | `recall`        | Searches memory for context relevant to the user's prompt, injects matches as `<hindsight_memories>` |
+| `Stop`             | `retain`        | Scores the conversation for memory-worthiness, retains high-value exchanges                          |
+| `SessionEnd`       | `session-end`   | Cleans up daemon (if started by the plugin)                                                          |
 
 ### Memory Scoring
 
 The retain hook scores each conversation before persisting:
 
-| Signal | Score | Examples |
-|--------|-------|---------|
-| Bug root cause | +3 | "The root cause was...", "Fixed by..." |
-| User preference | +2 | "I prefer...", "Always use..." |
-| Architecture decision | +2 | "We chose X because...", "The pattern is..." |
-| Milestone / shipped | +1 | "Deployed to...", "PR merged" |
-| Too short (< 50 chars) | -2 | Greetings, acknowledgments |
+| Signal                 | Score | Examples                                     |
+| ---------------------- | ----- | -------------------------------------------- |
+| Bug root cause         | +3    | "The root cause was...", "Fixed by..."       |
+| User preference        | +2    | "I prefer...", "Always use..."               |
+| Architecture decision  | +2    | "We chose X because...", "The pattern is..." |
+| Milestone / shipped    | +1    | "Deployed to...", "PR merged"                |
+| Too short (< 50 chars) | -2    | Greetings, acknowledgments                   |
 
 Only conversations scoring >= the threshold (default: 3) are retained.
 
@@ -51,16 +51,16 @@ Settings are loaded in cascade order (later wins):
 
 ### Key Settings
 
-| Setting | Env Var | Default | Description |
-|---------|---------|---------|-------------|
-| `hindsightApiUrl` | `HINDSIGHT_API_URL` | `""` | Hindsight API endpoint (required) |
-| `bankId` | `HINDSIGHT_BANK_ID` | per agent | Memory bank identifier |
-| `autoRecall` | `HINDSIGHT_AUTO_RECALL` | `true` | Auto-inject memories on prompt |
-| `autoRetain` | `HINDSIGHT_AUTO_RETAIN` | `true` | Auto-retain on stop |
-| `recallBudget` | `HINDSIGHT_RECALL_BUDGET` | `mid` | Recall depth: low/mid/high |
-| `recallMaxTokens` | `HINDSIGHT_RECALL_MAX_TOKENS` | `1024` | Max tokens in recall response |
-| `scoringThreshold` | `HINDSIGHT_SCORING_THRESHOLD` | `3` | Min score to retain |
-| `debug` | `HINDSIGHT_DEBUG` | `false` | Verbose logging to stderr |
+| Setting            | Env Var                       | Default   | Description                       |
+| ------------------ | ----------------------------- | --------- | --------------------------------- |
+| `hindsightApiUrl`  | `HINDSIGHT_API_URL`           | `""`      | Hindsight API endpoint (required) |
+| `bankId`           | `HINDSIGHT_BANK_ID`           | per agent | Memory bank identifier            |
+| `autoRecall`       | `HINDSIGHT_AUTO_RECALL`       | `true`    | Auto-inject memories on prompt    |
+| `autoRetain`       | `HINDSIGHT_AUTO_RETAIN`       | `true`    | Auto-retain on stop               |
+| `recallBudget`     | `HINDSIGHT_RECALL_BUDGET`     | `mid`     | Recall depth: low/mid/high        |
+| `recallMaxTokens`  | `HINDSIGHT_RECALL_MAX_TOKENS` | `1024`    | Max tokens in recall response     |
+| `scoringThreshold` | `HINDSIGHT_SCORING_THRESHOLD` | `3`       | Min score to retain               |
+| `debug`            | `HINDSIGHT_DEBUG`             | `false`   | Verbose logging to stderr         |
 
 ## Manual Operations
 
@@ -92,13 +92,13 @@ export HINDSIGHT_DEBUG=true
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| No memories injected | `hindsightApiUrl` empty or unreachable | Set `HINDSIGHT_API_URL` or edit settings.json |
-| Memories never retained | Score below threshold | Lower `scoringThreshold` or check conversation content |
-| "Skipping retention" in debug | Score < threshold | Expected for trivial conversations |
-| Hook timeout errors | API slow or unreachable | Increase timeout in hooks config or check API health |
-| `@hindsight/core` not found | Core not built | Run `bunx nx build @hindsight/core` |
+| Symptom                       | Cause                                  | Fix                                                    |
+| ----------------------------- | -------------------------------------- | ------------------------------------------------------ |
+| No memories injected          | `hindsightApiUrl` empty or unreachable | Set `HINDSIGHT_API_URL` or edit settings.json          |
+| Memories never retained       | Score below threshold                  | Lower `scoringThreshold` or check conversation content |
+| "Skipping retention" in debug | Score < threshold                      | Expected for trivial conversations                     |
+| Hook timeout errors           | API slow or unreachable                | Increase timeout in hooks config or check API health   |
+| `hindsight-plugin` not found  | Core not built                         | Run `bunx nx build hindsight-plugin`                   |
 
 ## Using Recalled Memories
 

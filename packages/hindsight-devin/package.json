@@ -1,0 +1,30 @@
+{
+	"name": "hindsight-devin",
+	"version": "0.1.0",
+	"description": "Devin CLI plugin: hooks, skills, and agents for persistent memory via Hindsight",
+	"type": "module",
+	"private": true,
+	"bin": {
+		"hindsight-devin": "./src/cli.ts",
+		"hindsight-devin-install": "./install.sh"
+	},
+	"scripts": {
+		"install:self": "./install.sh --self",
+		"install:target": "./install.sh",
+		"test:recall": "echo '{\"prompt\":\"test\",\"session_id\":\"test\"}' | HINDSIGHT_API_URL=http://localhost:8888 HINDSIGHT_BANK_ID=devin HINDSIGHT_AGENT_NAME=devin node src/hooks/recall.ts",
+		"test:retain": "echo '{\"messages\":[{\"role\":\"user\",\"content\":\"The root cause was a null check\"},{\"role\":\"assistant\",\"content\":\"Fixed by adding the guard\"}],\"session_id\":\"test\"}' | HINDSIGHT_API_URL=http://localhost:8888 HINDSIGHT_BANK_ID=devin HINDSIGHT_AGENT_NAME=devin node src/hooks/retain.ts"
+	},
+	"files": [
+		"src/",
+		"skills/",
+		"agents/",
+		"hooks.v1.json",
+		"settings.json",
+		"install.sh"
+	],
+	"dependencies": {
+		"hindsight-plugin": "*",
+		"@vectorize-io/hindsight-client": "^0.4.21"
+	},
+	"license": "MIT"
+}

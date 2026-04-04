@@ -7,11 +7,16 @@
   "scripts": {
     "build": "bunx nx run-many -t build",
     "check": "bunx nx run-many -t check",
-    "test": "bunx nx run-many -t test"
+    "test": "bunx nx run-many -t test",
+    "lint": "bunx nx run-many -t biome:check",
+    "lint:fix": "bunx nx run-many -t biome:write",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.10",
     "@types/node": "^25.5.0",
-    "nx": "^21.3.2",
+    "husky": "^9.1.7",
+    "nx": "22.6.4",
     "tsdown": "^0.21.7",
     "typescript": "^6.0.2"
   }
